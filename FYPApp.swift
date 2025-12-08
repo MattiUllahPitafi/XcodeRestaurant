@@ -17,7 +17,7 @@ struct FYPApp: App {
                         case .landing:
                             ContentView(path: $path)
                                 .environmentObject(userVM)
-                                .environmentObject(chefVM)     // <-- Inject ViewModel Globally
+                                .environmentObject(chefVM)     // <-- Inject ViewModel Globallyy
 
 
                         case .login:
