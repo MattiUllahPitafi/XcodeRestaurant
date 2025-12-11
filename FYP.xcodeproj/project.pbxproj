@@ -53,6 +53,7 @@
 		8104FDEC2EE70EE3004F99C5 /* jukebox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8104FDD12EE70EE3004F99C5 /* jukebox.swift */; };
 		8104FDED2EE70EE3004F99C5 /* AddDishView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8104FDD22EE70EE3004F99C5 /* AddDishView.swift */; };
 		8104FDEF2EE714F7004F99C5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8104FDEE2EE714F7004F99C5 /* Assets.xcassets */; };
+		8104FDF12EEB372B004F99C5 /* OrdersAndBookings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8104FDF02EEB372B004F99C5 /* OrdersAndBookings.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -103,6 +104,7 @@
 		8104FDD12EE70EE3004F99C5 /* jukebox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = jukebox.swift; sourceTree = "<group>"; };
 		8104FDD22EE70EE3004F99C5 /* AddDishView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddDishView.swift; sourceTree = "<group>"; };
 		8104FDEE2EE714F7004F99C5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		8104FDF02EEB372B004F99C5 /* OrdersAndBookings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdersAndBookings.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -269,6 +271,7 @@
 				8104FDD02EE70EE3004F99C5 /* showChef.swift */,
 				8104FDD12EE70EE3004F99C5 /* jukebox.swift */,
 				8104FDD22EE70EE3004F99C5 /* AddDishView.swift */,
+				8104FDF02EEB372B004F99C5 /* OrdersAndBookings.swift */,
 			);
 			path = AdminScreen;
 			sourceTree = "<group>";
@@ -366,6 +369,7 @@
 				8104FDE92EE70EE3004F99C5 /* adminHome.swift in Sources */,
 				8104FDA32EE70ED0004F99C5 /* BasicUser.swift in Sources */,
 				8104FDAA2EE70ED0004F99C5 /* Table.swift in Sources */,
+				8104FDF12EEB372B004F99C5 /* OrdersAndBookings.swift in Sources */,
 				8104FDE32EE70EE3004F99C5 /* OrderDetailView.swift in Sources */,
 				8104FDDF2EE70EE3004F99C5 /* UserOrdersView.swift in Sources */,
 				8104FDD92EE70EE3004F99C5 /* SignUpView.swift in Sources */,

@@ -70,7 +70,11 @@ struct adminHome: View {
                             NavigationLink(destination:ShowWaiter(adminUserId:userVM.user?.userId ?? 0).environmentObject(userVM)) {
                               DashboardCard(icon: "person.3", title: "👨‍🍳 Manage             Waiters", bgColor: themeWhite, accent: themeGreen)
                              }
-                            .padding(.horizontal)
+//                            .padding(.horizontal)
+                            NavigationLink(destination: OrdersAndBookings(adminUserId: userVM.user?.userId ?? 0)) {
+                                DashboardCard(icon: "fork.knife", title: "📦Orders and 🪑Bookings", bgColor: themeWhite, accent: themeOrange)
+                            }
+                            
                         }
                     }
                     .padding(.vertical)

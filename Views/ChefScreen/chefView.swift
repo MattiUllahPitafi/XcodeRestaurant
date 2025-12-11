@@ -963,31 +963,4 @@ struct DishRow: View {
 }
 
 // MARK: - Preview
-struct ChefView_Previews: PreviewProvider {
-    static var previews: some View {
-        let sampleDish = DishDetails(
-            orderItemId: 1,
-            dishId: 101,
-            dishName: "Vegetable Pizza",
-            quantity: 2,
-            prepTimeMinutes: 20,
-            skippedIngredients: ["Onions", "Mushrooms", "Extra Cheese"]
-        )
-        
-        let sampleOrder = ChefOrder(
-            orderId: 123,
-            order: OrderDetails(
-                orderDate: "2024-01-15T14:30:00",
-                status: "Pending",
-                bookingDateTime: "2024-01-15T19:30:00",
-                dishes: [sampleDish]
-            )
-        )
-        
-        NavigationStack {
-            ChefView(rootPath: .constant(NavigationPath()))
-                .environmentObject(UserViewModel())
-                .environmentObject(ChefOrdersViewModel())
-        }
-    }
-}
+

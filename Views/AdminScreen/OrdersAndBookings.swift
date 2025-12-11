@@ -130,7 +130,7 @@ struct RestaurantSummary: Codable {
         return String(format: "Rs %.2f", totalRevenue)
     }
 }
-
+//
 struct OrdersAndBookings: View {
     let adminUserId: Int
     @State private var bookings: [RestaurantBooking] = []

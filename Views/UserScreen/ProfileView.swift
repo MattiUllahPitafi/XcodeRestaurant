@@ -82,7 +82,8 @@ struct ProfileView: View {
                         }
 
                         NavigationLink("🪑 My Bookings") {
-                            UserBookingsView(bookings: bookings)                                             
+                       UserBookingsView(bookings: bookings,
+                                     userId: userVM.loggedInUserId ?? 0)
                         }
                         .padding(.top)
                     }

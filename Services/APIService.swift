@@ -84,49 +84,49 @@ class APIService {
         }.resume()
     }
 
-    func fetchRestaurants(completion: @escaping (Result<[Restaurant], Error>) -> Void) {
-        guard let url = URL(string: "\(baseURL)/restaurants/all") else {
-            completion(.failure(APIError.invalidURL))
-            return
-        }
-
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-
-            guard let httpResponse = response as? HTTPURLResponse else {
-                completion(.failure(APIError.invalidResponse))
-                return
-            }
-
-            guard (200...299).contains(httpResponse.statusCode) else {
-                let errorMessage = HTTPURLResponse.localizedString(forStatusCode: httpResponse.statusCode)
-                print("❌ Server error: \(httpResponse.statusCode) - \(errorMessage)")
-                completion(.failure(APIError.invalidResponse))
-                return
-            }
-
-            guard let data = data else {
-                print("❌ No data received.")
-                completion(.failure(APIError.invalidResponse))
-                return
-            }
-
-            do {
-                let decoded = try JSONDecoder().decode([Restaurant].self, from: data)
-                completion(.success(decoded))
-            } catch {
-                print("❌ Decoding failed with error: \(error.localizedDescription)")
-                if let jsonStr = String(data: data, encoding: .utf8) {
-                    print("🔍 Raw response: \(jsonStr)")
-                }
-                completion(.failure(error))
-            }
-        }.resume()
-    }
-  
+//    func fetchRestaurants(completion: @escaping (Result<[Restaurant], Error>) -> Void) {
+//        guard let url = URL(string: "\(baseURL)/restaurants/all") else {
+//            completion(.failure(APIError.invalidURL))
+//            return
+//        }
+//
+//        URLSession.shared.dataTask(with: url) { data, response, error in
+//            if let error = error {
+//                completion(.failure(error))
+//                return
+//            }
+//
+//            guard let httpResponse = response as? HTTPURLResponse else {
+//                completion(.failure(APIError.invalidResponse))
+//                return
+//            }
+//
+//            guard (200...299).contains(httpResponse.statusCode) else {
+//                let errorMessage = HTTPURLResponse.localizedString(forStatusCode: httpResponse.statusCode)
+//                print("❌ Server error: \(httpResponse.statusCode) - \(errorMessage)")
+//                completion(.failure(APIError.invalidResponse))
+//                return
+//            }
+//
+//            guard let data = data else {
+//                print("❌ No data received.")
+//                completion(.failure(APIError.invalidResponse))
+//                return
+//            }
+//
+//            do {
+//                let decoded = try JSONDecoder().decode([Restaurant].self, from: data)
+//                completion(.success(decoded))
+//            } catch {
+//                print("❌ Decoding failed with error: \(error.localizedDescription)")
+//                if let jsonStr = String(data: data, encoding: .utf8) {
+//                    print("🔍 Raw response: \(jsonStr)")
+//                }
+//                completion(.failure(error))
+//            }
+//        }.resume()
+//    }
+//  
     func getUserBookings(userId: Int, completion: @escaping (Result<[Booking], Error>) -> Void) {
             guard let url = URL(string: "\(baseURL)/bookings/byuserId/\(userId)") else { return }
 
