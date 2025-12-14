@@ -770,6 +770,7 @@ struct BookingView: View {
             bookingMessage = "⚠️ Please log in first."
             return
         }
+
         guard let table = selectedTable else {
             bookingMessage = "⚠️ Please select a table."
             return
@@ -778,11 +779,12 @@ struct BookingView: View {
         isBooking = true
         bookingMessage = nil
 
-        // Format booking date
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        formatter.timeZone = .current
-        let bookingDateString = formatter.string(from: selectedDate)
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.timeZone = TimeZone.current
+
+        let bookingDateString = isoFormatter.string(from: selectedDate)
+
+
 
         let bookingRequest: [String: Any?] = [
             "userId": userId,
@@ -807,7 +809,9 @@ struct BookingView: View {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
         do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: bookingRequest.compactMapValues { $0 })
+            request.httpBody = try JSONSerialization.data(
+                withJSONObject: bookingRequest.compactMapValues { $0 }
+            )
         } catch {
             bookingMessage = "Failed to encode booking"
             isBooking = false
@@ -828,30 +832,24 @@ struct BookingView: View {
                     return
                 }
 
-                // ⭐️ FIX APPLIED HERE: Data is guaranteed to be optional (Data?) from the closure parameter.
-                // We use optional chaining and conditional binding correctly.
                 if httpResponse.statusCode == 200 {
                     bookingMessage = "✅ Booking confirmed successfully!"
-
 
                     if let data = data,
                        let bookingResponse = try? JSONDecoder().decode(BookingResponse.self, from: data) {
 
-                        // Delay slightly so user sees success message
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                            path.append(AppRoute.menu(
-                                restaurantId: restaurantId,
-                                bookingId: bookingResponse.bookingId
-                            ))
+                            path.append(
+                                AppRoute.menu(
+                                    restaurantId: restaurantId,
+                                    bookingId: bookingResponse.bookingId
+                                )
+                            )
                         }
-                    } else {
-                        // This handles cases where status 200 is received, but the response body is empty or malformed.
-                         bookingMessage = "Failed to decode success message from server."
                     }
                 } else {
-                    // Try to read error message from server body
-                    if let data = data, let errStr = String(data: data, encoding: .utf8) {
-                        // Clean up error string (remove quotes if raw string)
+                    if let data = data,
+                       let errStr = String(data: data, encoding: .utf8) {
                         bookingMessage = "Failed: \(errStr.replacingOccurrences(of: "\"", with: ""))"
                     } else {
                         bookingMessage = "Failed to confirm booking (Status: \(httpResponse.statusCode))"

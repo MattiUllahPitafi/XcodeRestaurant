@@ -592,6 +592,7 @@ struct ChefOrder: Codable, Identifiable {
 struct OrderDetails: Codable {
     let orderDate: String
     let status: String
+    let dedicationNote:String?
     let bookingDateTime: String?
     let dishes: [DishDetails]
 }
@@ -806,7 +807,13 @@ struct ChefOrderCard: View {
                     .fontWeight(.bold)
                 
                 Spacer()
-                
+                if let note = order.order.dedicationNote, !note.isEmpty {
+                    Text("Instruction by customer: \(note)")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.green)
+                }
+                Spacer()
                 Text(order.order.status)
                     .font(.caption)
                     .fontWeight(.semibold)
