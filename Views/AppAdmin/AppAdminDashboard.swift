@@ -77,7 +77,7 @@ final class RestaurantViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var successMessage: String?
 
-    private let baseURL = "http://10.211.55.7/BooknowAPI/api/restaurants"
+    private let baseURL = "\(APIConfig.baseURL)/restaurants"
 
     func fetchRestaurants() {
         isLoading = true

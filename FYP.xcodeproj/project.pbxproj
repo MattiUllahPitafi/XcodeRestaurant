@@ -56,6 +56,7 @@
 		8104FDF12EEB372B004F99C5 /* OrdersAndBookings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8104FDF02EEB372B004F99C5 /* OrdersAndBookings.swift */; };
 		7C9A3F72DAAD4D16811C6F59 /* CustomMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9CC09CCFE74C43B1B227EA /* CustomMenu.swift */; };
 		696BD2657C1349EFB935923A /* LocalMenuStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7DC9FBF3DEB4DDE9749F2A9 /* LocalMenuStorage.swift */; };
+		BA3C2AC9D92345CF92700D8A /* APIConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CADB885FD94C4BDABE4F87CF /* APIConfig.swift */; };
 		225CEB05E9574E4CAC264548 /* SavedMenusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C844D49CDF94644868309D3 /* SavedMenusView.swift */; };
 		5AF9DE74C8194060AEB6BB04 /* SaveMenuNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711B8C9399D941A88F0912F9 /* SaveMenuNameView.swift */; };
 /* End PBXBuildFile section */
@@ -111,6 +112,7 @@
 		8104FDF02EEB372B004F99C5 /* OrdersAndBookings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdersAndBookings.swift; sourceTree = "<group>"; };
 		0A9CC09CCFE74C43B1B227EA /* CustomMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomMenu.swift; sourceTree = "<group>"; };
 		A7DC9FBF3DEB4DDE9749F2A9 /* LocalMenuStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalMenuStorage.swift; sourceTree = "<group>"; };
+		CADB885FD94C4BDABE4F87CF /* APIConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIConfig.swift; sourceTree = "<group>"; };
 		6C844D49CDF94644868309D3 /* SavedMenusView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SavedMenusView.swift; sourceTree = "<group>"; };
 		711B8C9399D941A88F0912F9 /* SaveMenuNameView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveMenuNameView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -168,6 +170,7 @@
 			children = (
 				8104FD8F2EE70EC5004F99C5 /* APIService.swift */,
 				A7DC9FBF3DEB4DDE9749F2A9 /* LocalMenuStorage.swift */,
+				CADB885FD94C4BDABE4F87CF /* APIConfig.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -405,6 +408,7 @@
 				8104FD7B2EE70D12004F99C5 /* FYPApp.swift in Sources */,
 				7C9A3F72DAAD4D16811C6F59 /* CustomMenu.swift in Sources */,
 				696BD2657C1349EFB935923A /* LocalMenuStorage.swift in Sources */,
+				BA3C2AC9D92345CF92700D8A /* APIConfig.swift in Sources */,
 				225CEB05E9574E4CAC264548 /* SavedMenusView.swift in Sources */,
 				5AF9DE74C8194060AEB6BB04 /* SaveMenuNameView.swift in Sources */,
 			);

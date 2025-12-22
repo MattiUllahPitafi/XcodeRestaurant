@@ -106,7 +106,7 @@
 //            return
 //        }
 //
-//        let urlString = "http://10.211.55.7/BooknowAPI/api/admin/GetWaitersForAdmin/\(adminUserId)"
+//        let urlString = "\(APIConfig.baseURL)/admin/GetWaitersForAdmin/\(adminUserId)"
 //
 //        guard let url = URL(string: urlString) else {
 //            errorMessage = "Invalid URL"
@@ -436,7 +436,7 @@ struct ShowWaiter: View {
             return
         }
 
-        let urlString = "http://10.211.55.7/BooknowAPI/api/admin/GetWaitersForAdmin/\(adminUserId)"
+        let urlString = "\(APIConfig.baseURL)/admin/GetWaitersForAdmin/\(adminUserId)"
 
         guard let url = URL(string: urlString) else {
             errorMessage = "Invalid URL"
@@ -465,7 +465,7 @@ struct ShowWaiter: View {
     func deleteWaiter(waiterId: Int) async {
         errorMessage = nil
         
-        let urlString = "http://10.211.55.7/BooknowAPI/api/admin/DeleteWaiter/\(adminUserId)/\(waiterId)"
+        let urlString = "\(APIConfig.baseURL)/admin/DeleteWaiter/\(adminUserId)/\(waiterId)"
         
         guard let url = URL(string: urlString) else {
             errorMessage = "Invalid URL"

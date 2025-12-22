@@ -21,7 +21,7 @@
 //                    ForEach(dishes) { dish in
 //                        HStack(spacing: 12) {
 //                            // Dish image
-//                            AsyncImage(url: URL(string: "http://10.211.55.7/\(dish.dishImageUrl)")) { image in
+//                            AsyncImage(url: APIConfig.imageURL(for: dish.dishImageUrl)) { image in
 //                                image.resizable()
 //                                    .aspectRatio(contentMode: .fill)
 //                            } placeholder: {
@@ -58,7 +58,7 @@
 //
 //    // MARK: - API Call
 //    private func fetchMenu() {
-//        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/menu/restaurant/\(restaurantId)") else {
+//        guard let url = APIConfig.url(for: .menuByRestaurant(restaurantId)) else {
 //            errorMessage = "Invalid menu URL"
 //            isLoading = false
 //            return
@@ -331,7 +331,7 @@ struct MenuBeforeBooking: View {
     private func dishRowView(_ dish: Dish) -> some View {
         HStack(spacing: 12) {
             // Dish image
-            AsyncImage(url: URL(string: "http://10.211.55.7/\(dish.dishImageUrl)")) { image in
+            AsyncImage(url: APIConfig.imageURL(for: dish.dishImageUrl)) { image in
                 image.resizable()
                     .aspectRatio(contentMode: .fill)
             } placeholder: {
@@ -403,7 +403,7 @@ struct MenuBeforeBooking: View {
 
     // MARK: - API Call
     private func fetchMenu() {
-        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/menu/restaurant/\(restaurantId)") else {
+        guard let url = APIConfig.url(for: .menuByRestaurant(restaurantId)) else {
             errorMessage = "Invalid menu URL"
             isLoading = false
             return
@@ -434,7 +434,7 @@ struct MenuBeforeBooking: View {
     // MARK: - Save/Load Menu Functions
     private func fetchRestaurantName() {
         // Try to fetch restaurant name from API
-        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/restaurants/\(restaurantId)") else {
+        guard let url = APIConfig.url(for: .restaurant(restaurantId)) else {
             return
         }
         
@@ -508,10 +508,3 @@ struct MenuBeforeBooking: View {
     }
 }
 
-// MARK: - Supporting Types
-//enum SortOption {
-//    case name
-//    case priceAsc
-//    case priceDesc
-//    case prepTime
-//}

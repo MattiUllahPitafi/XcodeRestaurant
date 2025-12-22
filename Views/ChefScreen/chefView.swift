@@ -61,7 +61,7 @@
 //    // MARK: Fetch Orders
 //    func fetchOrders(for chefId: Int) async {
 //
-//        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/cheforder/byid/\(chefId)") else {
+//        guard let url = APIConfig.url(for: .chefOrders(chefId)) else {
 //            errorMessage = "Invalid API URL"
 //            return
 //        }
@@ -97,7 +97,7 @@
 //
 //        print("🔥 ENTER updateOrderStatus for order \(orderId)")
 //
-//        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/order/status/\(orderId)") else {
+//        guard let url = APIConfig.url(for: .updateOrderStatus(orderId)) else {
 //            print("❌ Invalid URL")
 //            return false
 //        }
@@ -305,7 +305,7 @@
 //    // MARK: Fetch Orders
 //    func fetchOrders(for chefId: Int) async {
 //
-//        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/cheforder/byid/\(chefId)") else {
+//        guard let url = APIConfig.url(for: .chefOrders(chefId)) else {
 //            errorMessage = "Invalid API URL"
 //            return
 //        }
@@ -341,7 +341,7 @@
 //
 //        print("🔥 ENTER updateOrderStatus for order \(orderId)")
 //
-//        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/order/status/\(orderId)") else {
+//        guard let url = APIConfig.url(for: .updateOrderStatus(orderId)) else {
 //            print("❌ Invalid URL")
 //            return false
 //        }
@@ -649,7 +649,7 @@ class ChefOrdersViewModel: ObservableObject {
     // MARK: Fetch Orders
     func fetchOrders(for chefId: Int) async {
 
-        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/cheforder/byid/\(chefId)") else {
+        guard let url = APIConfig.url(for: .chefOrders(chefId)) else {
             errorMessage = "Invalid API URL"
             return
         }
@@ -685,7 +685,7 @@ class ChefOrdersViewModel: ObservableObject {
 
         print("🔥 ENTER updateOrderStatus for order \(orderId)")
 
-        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/order/status/\(orderId)") else {
+        guard let url = APIConfig.url(for: .updateOrderStatus(orderId)) else {
             print("❌ Invalid URL")
             return false
         }
@@ -968,6 +968,3 @@ struct DishRow: View {
         )
     }
 }
-
-// MARK: - Preview
-

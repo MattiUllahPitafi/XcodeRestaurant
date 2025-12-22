@@ -25,7 +25,7 @@ class ChefViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var successMessage: String?
     
-    private let baseURL = "http://10.211.55.7/BooknowAPI/api/admin"
+    private let baseURL = "\(APIConfig.baseURL)/admin"
     
     // ✅ Fetch chefs (async)
     func fetchChefs(adminUserId: Int) {

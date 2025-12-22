@@ -3,7 +3,7 @@ import SwiftUI
 
 // Renamed models to avoid conflicts with existing ones
 struct RestaurantBooking: Codable, Identifiable {
-    var id: Int { bookingId }
+    var id: Int { bookingId } // Computed property for Identifiable, excluded from Codable
     let bookingId: Int
     let bookingDateTime: String
     let bookingStatus: String
@@ -17,6 +17,13 @@ struct RestaurantBooking: Codable, Identifiable {
     let hasOrders: Bool
     let totalOrders: Int
     let totalOrderAmount: Double
+    
+    // Explicitly exclude computed property from Codable
+    enum CodingKeys: String, CodingKey {
+        case bookingId, bookingDateTime, bookingStatus, specialRequest
+        case maxEstimatedMinutes, tableId, tableName, tableLocation
+        case customer, orders, hasOrders, totalOrders, totalOrderAmount
+    }
     
     var formattedDateTime: String {
         let dateFormatter = DateFormatter()
@@ -54,13 +61,18 @@ struct RestaurantCustomer: Codable {
 }
 
 struct RestaurantOrder: Codable, Identifiable {
-    var id: Int { orderId }
+    var id: Int { orderId } // Computed property for Identifiable, excluded from Codable
     let orderId: Int
     let orderDate: String
     let totalPrice: Double
     let orderStatus: String
     let itemCount: Int
     let items: [RestaurantOrderItem]
+    
+    // Explicitly exclude computed property from Codable
+    enum CodingKeys: String, CodingKey {
+        case orderId, orderDate, totalPrice, orderStatus, itemCount, items
+    }
     
     var formattedDate: String {
         let dateFormatter = DateFormatter()
@@ -97,12 +109,17 @@ struct RestaurantOrder: Codable, Identifiable {
 }
 
 struct RestaurantOrderItem: Codable, Identifiable {
-    var id: Int { orderItemId }
+    var id: Int { orderItemId } // Computed property for Identifiable, excluded from Codable
     let orderItemId: Int
     let dishName: String
     let quantity: Int
     let price: Double?
     let specialInstructions: String?
+    
+    // Explicitly exclude computed property from Codable
+    enum CodingKeys: String, CodingKey {
+        case orderItemId, dishName, quantity, price, specialInstructions
+    }
     
     var formattedPrice: String {
         if let price = price {
@@ -359,7 +376,7 @@ struct OrdersAndBookings: View {
         isLoading = true
         errorMessage = nil
         
-        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/admin/GetBookingsAndOrderByRestaurant/\(adminUserId)") else {
+        guard let url = APIConfig.url(for: .adminBookingsAndOrders(adminUserId)) else {
             errorMessage = "Invalid URL"
             isLoading = false
             return

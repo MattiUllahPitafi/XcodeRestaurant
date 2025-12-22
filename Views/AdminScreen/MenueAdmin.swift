@@ -31,8 +31,8 @@ struct MenueAdmin: View {
     let userId: Int
 
     // ✅ Base URL without BooknowAPI — since images come from root
-    private let baseAPI = "http://10.211.55.7/BooknowAPI"
-    private let baseImageURL = "http://10.211.55.7"
+    private let baseAPI = APIConfig.baseURL
+    private let baseImageURL = APIConfig.imageBaseURL
 
     var body: some View {
         NavigationView {
@@ -114,7 +114,7 @@ struct MenueAdmin: View {
 
     // ✅ Fetch menu for the admin’s restaurant
     private func fetchMenu() {
-        guard let url = URL(string: "\(baseAPI)/api/admin/getByAdmin/\(userId)") else {
+        guard let url = URL(string: "\(baseAPI)/admin/getByAdmin/\(userId)") else {
             print("❌ Invalid menu URL")
             return
         }
@@ -149,7 +149,7 @@ struct MenueAdmin: View {
 
     // ✅ Delete dish from the admin’s menu
     private func deleteDish(dishId: Int) {
-        guard let url = URL(string: "\(baseAPI)/api/admin/delete/\(userId)/\(dishId)") else {
+        guard let url = URL(string: "\(baseAPI)/admin/delete/\(userId)/\(dishId)") else {
             print("❌ Invalid delete URL")
             return
         }

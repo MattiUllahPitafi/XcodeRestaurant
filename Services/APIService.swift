@@ -2,11 +2,12 @@ import Foundation
 
 class APIService {
     static let shared = APIService()
-    private let baseURL = "http://10.211.55.7/BooknowAPI/api"
+    
+    private init() {}
 
     // MARK: - Login
     func loginUser(email: String, password: String, completion: @escaping (Result<LoginResponse, Error>) -> Void) {
-        guard let url = URL(string: "\(baseURL)/Users/login") else {
+        guard let url = APIConfig.url(for: .login) else {
             completion(.failure(APIError.invalidURL))
             return
         }
@@ -41,8 +42,6 @@ class APIService {
             }
 
             do {
-                print("Raw Response: \(String(data: data, encoding: .utf8) ?? "nil")")
-
                 let decoded = try JSONDecoder().decode(LoginResponse.self, from: data)
                 completion(.success(decoded))
             } catch {
@@ -50,8 +49,9 @@ class APIService {
             }
         }.resume()
     }
- func signupUser(name: String, email: String, password: String, completion: @escaping (Result<Bool, Error>) -> Void) {
-        guard let url = URL(string: "\(baseURL)/Users/Register") else {
+    
+    func signupUser(name: String, email: String, password: String, completion: @escaping (Result<Bool, Error>) -> Void) {
+        guard let url = APIConfig.url(for: .register) else {
             completion(.failure(URLError(.badURL)))
             return
         }
@@ -128,7 +128,7 @@ class APIService {
 //    }
 //  
     func getUserBookings(userId: Int, completion: @escaping (Result<[Booking], Error>) -> Void) {
-            guard let url = URL(string: "\(baseURL)/bookings/byuserId/\(userId)") else { return }
+        guard let url = APIConfig.url(for: .bookingsByUserId(userId)) else { return }
 
             URLSession.shared.dataTask(with: url) { data, _, error in
                 if let error = error {
@@ -147,9 +147,9 @@ class APIService {
             }.resume()
         }
 
-        // MARK: - Get User Orders
-        func getUserOrders(userId: Int, completion: @escaping (Result<[Order], Error>) -> Void) {
-            guard let url = URL(string: "\(baseURL)/order/byUser/\(userId)") else { return }
+    // MARK: - Get User Orders
+    func getUserOrders(userId: Int, completion: @escaping (Result<[Order], Error>) -> Void) {
+        guard let url = APIConfig.url(for: .orderByUser(userId)) else { return }
 
             URLSession.shared.dataTask(with: url) { data, _, error in
                 if let error = error {
@@ -165,12 +165,13 @@ class APIService {
                         completion(.failure(error))
                     }
                 }
-            }.resume()
-        }
+        }.resume()
     }
-  //   MARK: - API Error Types
-    enum APIError: Error {
-        case invalidURL
-        case invalidResponse
-    }
+}
+
+// MARK: - API Error Types
+enum APIError: Error {
+    case invalidURL
+    case invalidResponse
+}
 

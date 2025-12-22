@@ -5,7 +5,7 @@ class WaiterViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isLoading = false
     
-    private let apiBase = "http://10.211.55.7/BooknowAPI/api/waiters"
+    private let apiBase = "\(APIConfig.baseURL)/waiters"
     
     // Fetch assignments for waiter
     func fetchAssignments(for waiterUserId: Int) async {
@@ -52,7 +52,7 @@ class WaiterViewModel: ObservableObject {
 
     // Serve order function
     func serveOrder(orderId: Int, waiterId: Int) async {
-        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/waiters/serve/\(orderId)") else {
+        guard let url = APIConfig.url(for: .waiterServeOrder(orderId)) else {
             errorMessage = "Invalid API URL"
             return
         }

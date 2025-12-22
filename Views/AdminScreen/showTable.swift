@@ -30,7 +30,7 @@ class TableViewModel: ObservableObject {
 
     // ✅ Fetch tables linked to admin’s restaurant (backend handles restaurant lookup)
     func fetchTables(adminUserId: Int) {
-        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/admin/GetTablesByAdmin/\(adminUserId)") else {
+        guard let url = APIConfig.url(for: .adminGetTables(adminUserId)) else {
             errorMessage = "Invalid URL"
             return
         }
@@ -62,7 +62,7 @@ class TableViewModel: ObservableObject {
 
     // ✅ Add a new table (restaurant is derived from adminUserId)
     func addTable(adminUserId: Int, name: String, floor: String, price: Double, location: String, capacity: Int) async -> Bool {
-        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/admin/AddTable/\(adminUserId)") else {
+        guard let url = APIConfig.url(for: .adminAddTable(adminUserId)) else {
             errorMessage = "Invalid URL"
             return false
         }

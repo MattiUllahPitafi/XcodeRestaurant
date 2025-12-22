@@ -1068,11 +1068,52 @@ struct BookingView: View {
 
     private func fetchTables() {
         isLoading = true
-        let iso = ISO8601DateFormatter()
-        var url = "http://10.211.55.7/BooknowAPI/api/tables/available/\(restaurantId)?datetime=\(iso.string(from: selectedDate))"
-        if let floor = selectedFloor { url += "&floor=\(floor)" }
+        
+        // ✅ FIX: Explicitly convert local to UTC (same as booking)
+        let calendar = Calendar.current
+        let localTimeZone = TimeZone.current
+        
+        // Get the date components as they appear in local timezone
+        let localComponents = calendar.dateComponents(in: localTimeZone, from: selectedDate)
+        
+        // Create a new DateComponents explicitly set to local timezone
+        var dateComps = DateComponents()
+        dateComps.calendar = calendar
+        dateComps.timeZone = localTimeZone
+        dateComps.year = localComponents.year
+        dateComps.month = localComponents.month
+        dateComps.day = localComponents.day
+        dateComps.hour = localComponents.hour
+        dateComps.minute = localComponents.minute
+        dateComps.second = localComponents.second ?? 0
+        
+        // Create date from these local components
+        guard let localDateTime = calendar.date(from: dateComps) else {
+            isLoading = false
+            return
+        }
+        
+        // Get timezone offset (negative means behind UTC)
+        let offsetSeconds = localTimeZone.secondsFromGMT(for: localDateTime)
+        
+        // Convert local to UTC: add the offset
+        let utcDateTime = calendar.date(byAdding: .second, value: -offsetSeconds, to: localDateTime) ?? selectedDate
+        
+        // Format as ISO8601 UTC string
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        isoFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+        
+        let dateString = isoFormatter.string(from: utcDateTime)
+        var urlString = "\(APIConfig.baseURL)/tables/available/\(restaurantId)?datetime=\(dateString)"
+        if let floor = selectedFloor { urlString += "&floor=\(floor)" }
 
-        URLSession.shared.dataTask(with: URL(string: url)!) { data,_,_ in
+        guard let url = URL(string: urlString) else {
+            isLoading = false
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { data,_,_ in
             DispatchQueue.main.async {
                 isLoading = false
                 tables = (try? JSONDecoder().decode([Table].self, from: data ?? Data())) ?? []
@@ -1084,7 +1125,7 @@ struct BookingView: View {
         // If customer has a special celebration, fetch ALL songs (override theme)
         if specialRequest != "None" {
             // Use getAll endpoint to get all music regardless of theme
-            guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/Music/getall") else {
+            guard let url = APIConfig.url(for: .musicAll) else {
                 return
             }
             
@@ -1108,7 +1149,7 @@ struct BookingView: View {
             let df = DateFormatter()
             df.dateFormat = "EEEE"
 
-            var comp = URLComponents(string: "http://10.211.55.7/BooknowAPI/api/Music/byday")!
+            var comp = URLComponents(string: "\(APIConfig.baseURL)/Music/byday")!
             var queryItems: [URLQueryItem] = [
                 .init(name: "day", value: df.string(from: selectedDate))
             ]
@@ -1133,10 +1174,46 @@ struct BookingView: View {
     private func confirmBooking() {
         guard let userId = userVM.user?.userId else { return }
 
-        let iso = ISO8601DateFormatter()
+        // ✅ FIX: Explicitly handle local to UTC conversion
+        // The DatePicker may create Date in a way that needs explicit local time interpretation
+        let calendar = Calendar.current
+        let localTimeZone = TimeZone.current
+        
+        // Get the date components as they appear in local timezone
+        let localComponents = calendar.dateComponents(in: localTimeZone, from: selectedDate)
+        
+        // Create a new DateComponents explicitly set to local timezone
+        var dateComps = DateComponents()
+        dateComps.calendar = calendar
+        dateComps.timeZone = localTimeZone
+        dateComps.year = localComponents.year
+        dateComps.month = localComponents.month
+        dateComps.day = localComponents.day
+        dateComps.hour = localComponents.hour
+        dateComps.minute = localComponents.minute
+        dateComps.second = localComponents.second ?? 0
+        
+        // Create date from these local components
+        guard let localDateTime = calendar.date(from: dateComps) else {
+            return
+        }
+        
+        // Get timezone offset (negative means behind UTC)
+        let offsetSeconds = localTimeZone.secondsFromGMT(for: localDateTime)
+        
+        // Convert local to UTC: add the offset (if UTC-5 = -18000, we add 18000)
+        let utcDateTime = calendar.date(byAdding: .second, value: -offsetSeconds, to: localDateTime) ?? selectedDate
+        
+        // Format as ISO8601 UTC string
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        isoFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+        
+        let bookingDateTimeUTC = isoFormatter.string(from: utcDateTime)
+        
         var payload: [String: Any] = [
             "UserId": userId,
-            "BookingDateTime": iso.string(from: selectedDate),
+            "BookingDateTime": bookingDateTimeUTC,
             "SpecialRequest": specialRequest
         ]
 
@@ -1147,10 +1224,10 @@ struct BookingView: View {
         let url: String
         if selectedTables.count == 1 {
             payload["TableId"] = selectedTables[0].tableId
-            url = "http://10.211.55.7/BooknowAPI/api/bookings/create"
+            url = "\(APIConfig.baseURL)/Bookings/create"
         } else {
             payload["TableIds"] = selectedTables.map { $0.tableId }
-            url = "http://10.211.55.7/BooknowAPI/api/bookings/create-multiple"
+            url = "\(APIConfig.baseURL)/bookings/create-multiple"
         }
 
         send(url: url, payload: payload)

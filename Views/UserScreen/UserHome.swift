@@ -323,7 +323,7 @@ struct UserHome: View {
 struct RestaurantCardView: View {
     var restaurant: Restaurant
     var onCardTap: () -> Void
-    let apiurl = "http://10.211.55.7/"
+    let apiurl = APIConfig.imageBaseURL + "/"
 
     var body: some View {
         VStack(spacing: 0) {
@@ -484,11 +484,11 @@ struct Restaurant: Codable, Identifiable {
 }
 
 // MARK: - APIService Extension
-private let baseURL = "http://10.211.55.7/BooknowAPI"
+private let baseURL = APIConfig.baseURL
 
 extension APIService {
     func fetchRestaurants(completion: @escaping (Result<[Restaurant], Error>) -> Void) {
-        guard let url = URL(string: "\(baseURL)/api/restaurants/allR") else {
+        guard let url = URL(string: "\(baseURL)/restaurants/allR") else {
             completion(.failure(APIError1.invalidURL))
             return
         }

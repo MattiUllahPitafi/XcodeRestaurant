@@ -450,7 +450,7 @@
 //// MARK: - APIService Extension
 //extension APIService {
 //    func checkBookingRating(bookingId: Int, completion: @escaping (Result<BookingRatingCheckResponse, Error>) -> Void) {
-//        let urlString = "http://10.211.55.7/BooknowAPI/api/ratings/check/booking/\(bookingId)"
+//        let urlString = "\(APIConfig.baseURL)/ratings/check/booking/\(bookingId)"
 //
 //        print("🌐 Checking rating at URL: \(urlString)")
 //
@@ -494,7 +494,7 @@
 //    }
 //
 //    func submitRatingByBooking(_ request: RatingByBookingRequest, completion: @escaping (Result<RatingResponse, Error>) -> Void) {
-//        let urlString = "http://10.211.55.7/BooknowAPI/api/ratings/submit/bybooking"
+//        let urlString = "\(APIConfig.baseURL)/ratings/submit/bybooking"
 //
 //        print("🌐 Submitting rating at URL: \(urlString)")
 //        print("📤 Request data: bookingId=\(request.bookingId), stars=\(request.stars)")
@@ -557,7 +557,7 @@
 //    }
 //
 //    func updateRatingByBooking(bookingId: Int, stars: Int, completion: @escaping (Result<RatingResponse, Error>) -> Void) {
-//        let urlString = "http://10.211.55.7/BooknowAPI/api/ratings/update/bybooking/\(bookingId)"
+//        let urlString = "\(APIConfig.baseURL)/ratings/update/bybooking/\(bookingId)"
 //
 //        print("🌐 Updating rating at URL: \(urlString)")
 //        print("📤 Request data: stars=\(stars)")
@@ -1346,7 +1346,7 @@ struct UpdateRatingRequest: Codable {
 // MARK: - APIService Extension
 extension APIService {
     func checkBookingRating(bookingId: Int, completion: @escaping (Result<BookingRatingCheckResponse, Error>) -> Void) {
-        let urlString = "http://10.211.55.7/BooknowAPI/api/ratings/check/booking/\(bookingId)"
+        let urlString = "\(APIConfig.baseURL)/ratings/check/booking/\(bookingId)"
 
         print("🌐 Checking rating at URL: \(urlString)")
 
@@ -1390,7 +1390,7 @@ extension APIService {
     }
 
     func submitRatingByBooking(_ request: RatingByBookingRequest, completion: @escaping (Result<RatingResponse, Error>) -> Void) {
-        let urlString = "http://10.211.55.7/BooknowAPI/api/ratings/submit/bybooking"
+        let urlString = "\(APIConfig.baseURL)/ratings/submit/bybooking"
 
         print("🌐 Submitting rating at URL: \(urlString)")
         print("📤 Request data: bookingId=\(request.bookingId), stars=\(request.stars)")
@@ -1453,7 +1453,7 @@ extension APIService {
     }
 
     func updateRatingByBooking(bookingId: Int, stars: Int, completion: @escaping (Result<RatingResponse, Error>) -> Void) {
-        let urlString = "http://10.211.55.7/BooknowAPI/api/ratings/update/bybooking/\(bookingId)"
+        let urlString = "\(APIConfig.baseURL)/ratings/update/bybooking/\(bookingId)"
 
         print("🌐 Updating rating at URL: \(urlString)")
         print("📤 Request data: stars=\(stars)")
@@ -1517,3 +1517,4 @@ extension APIService {
         }.resume()
     }
 }
+

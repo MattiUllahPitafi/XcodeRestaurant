@@ -377,7 +377,7 @@
 //    // MARK: - API Functions
 //
 //    func fetchMenu() {
-//        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/menu/restaurant/\(restaurantId)") else {
+//        guard let url = APIConfig.url(for: .menuByRestaurant(restaurantId)) else {
 //            errorMessage = "Invalid menu URL"
 //            isLoading = false
 //            return
@@ -446,7 +446,7 @@
 //            "OrderItems": orderItems
 //        ]
 //
-//        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/order/add") else {
+//        guard let url = APIConfig.url(for: .addOrder) else {
 //            orderMessage = "Invalid order URL."
 //            return
 //        }
@@ -888,7 +888,7 @@
 //                            VStack(alignment: .leading, spacing: 6) {
 //                                // 🔹 Dish row with + / - controls
 //                                HStack {
-//                                    AsyncImage(url: URL(string: "http://10.211.55.7/\(dish.dishImageUrl)")) { image in
+//                                    AsyncImage(url: APIConfig.imageURL(for: dish.dishImageUrl)) { image in
 //                                        image.resizable().aspectRatio(contentMode: .fill)
 //                                    } placeholder: {
 //                                        Color.gray.opacity(0.1)
@@ -1033,7 +1033,7 @@
 //    // MARK: - API Functions
 //
 //    func fetchMenu() {
-//        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/menu/restaurant/\(restaurantId)") else {
+//        guard let url = APIConfig.url(for: .menuByRestaurant(restaurantId)) else {
 //            errorMessage = "Invalid menu URL"
 //            isLoading = false
 //            return
@@ -1102,7 +1102,7 @@
 //            "OrderItems": orderItems
 //        ]
 //
-//        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/order/add") else {
+//        guard let url = APIConfig.url(for: .addOrder) else {
 //            orderMessage = "Invalid order URL."
 //            return
 //        }
@@ -1609,7 +1609,7 @@ struct MenuView: View {
                             VStack(alignment: .leading, spacing: 6) {
                                 // 🔹 Dish row with + / - controls
                                 HStack {
-                                    AsyncImage(url: URL(string: "http://10.211.55.7/\(dish.dishImageUrl)")) { image in
+                                    AsyncImage(url: APIConfig.imageURL(for: dish.dishImageUrl)) { image in
                                         image.resizable().aspectRatio(contentMode: .fill)
                                     } placeholder: {
                                         Color.gray.opacity(0.1)
@@ -1803,7 +1803,7 @@ struct MenuView: View {
     // MARK: - API Functions
 
     func fetchMenu() {
-        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/menu/restaurant/\(restaurantId)") else {
+        guard let url = APIConfig.url(for: .menuByRestaurant(restaurantId)) else {
             errorMessage = "Invalid menu URL"
             isLoading = false
             return
@@ -1884,7 +1884,7 @@ struct MenuView: View {
             orderData["DedicationNote"] = dedicationNote.trimmingCharacters(in: .whitespacesAndNewlines)
         }
 
-        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/order/add") else {
+        guard let url = APIConfig.url(for: .addOrder) else {
             orderMessage = "Invalid order URL."
             return
         }
@@ -1965,7 +1965,7 @@ struct MenuView: View {
     
     private func fetchRestaurantName() {
         // Try to fetch restaurant name from API
-        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/restaurants/\(restaurantId)") else {
+        guard let url = APIConfig.url(for: .restaurant(restaurantId)) else {
             return
         }
         

@@ -6,7 +6,7 @@ class UserViewModel: ObservableObject {
     @Published var errorMessage: String?
 
     func fetchUser(userId: Int) async {
-        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/Users/Get/\(userId)") else {
+        guard let url = APIConfig.url(for: .getUser(userId)) else {
             DispatchQueue.main.async {
                 self.errorMessage = "Invalid profile URL"
             }
@@ -31,7 +31,7 @@ class UserViewModel: ObservableObject {
     @Published var restaurantId: Int?
 
     func fetchAdminRestaurant(userId: Int) async {
-        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/Admins/GetByUser/\(userId)") else {
+        guard let url = APIConfig.url(for: .adminGetByUser(userId)) else {
             DispatchQueue.main.async {
                 self.errorMessage = "Invalid admin URL"
             }
@@ -55,7 +55,7 @@ class UserViewModel: ObservableObject {
 
     @MainActor
     func updateUserProfile(userId: Int, name: String, email: String, passwordHash: String) async {
-        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/Users/Update/\(userId)") else {
+        guard let url = APIConfig.url(for: .updateUser(userId)) else {
             DispatchQueue.main.async {
                 self.errorMessage = "Invalid update URL"
             }

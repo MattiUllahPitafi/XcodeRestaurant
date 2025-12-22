@@ -145,3 +145,4 @@ struct WaiterDashboard: View {
         }
     }
 }
+

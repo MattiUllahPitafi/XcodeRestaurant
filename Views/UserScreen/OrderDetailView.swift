@@ -115,41 +115,43 @@ struct OrderDetailView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            if isLoading {
-                ProgressView("Loading Orders...")
-            } else if let errorMessage = errorMessage {
-                Text(errorMessage).foregroundColor(.red)
-            } else if orders.isEmpty {
-                Text("No orders found").foregroundColor(.gray)
-            } else {
-                mainContent
-            }
-        }
-        .overlay(
-            // ✅ Show success message
-            Group {
-                if let successMessage = successMessage {
-                    VStack {
-                        Spacer()
-                        Text(successMessage)
-                            .foregroundColor(.green)
-                            .padding()
-                            .background(Color.white.opacity(0.9))
-                            .cornerRadius(8)
-                            .padding()
-                    }
+        NavigationView {
+            VStack(spacing: 0) {
+                if isLoading {
+                    ProgressView("Loading Orders...")
+                } else if let errorMessage = errorMessage {
+                    Text(errorMessage).foregroundColor(.red)
+                } else if orders.isEmpty {
+                    Text("No orders found").foregroundColor(.gray)
+                } else {
+                    mainContent
                 }
             }
-        )
-        .navigationTitle("My Orders")
-        .sheet(isPresented: $showOrderDetail) {
-            if let order = selectedOrder {
-                UserOrderDetailView(order: order)
+            .navigationTitle("My Orders")
+            .overlay(successOverlay)
+            .sheet(isPresented: $showOrderDetail) {
+                if let order = selectedOrder {
+                    UserOrderDetailView(order: order)
+                }
+            }
+            .onAppear {
+                fetchOrders()
             }
         }
-        .onAppear {
-            fetchOrders()
+    }
+    
+    @ViewBuilder
+    private var successOverlay: some View {
+        if let successMessage = successMessage {
+            VStack {
+                Spacer()
+                Text(successMessage)
+                    .foregroundColor(.green)
+                    .padding()
+                    .background(Color.white.opacity(0.9))
+                    .cornerRadius(8)
+                    .padding()
+            }
         }
     }
     
@@ -389,7 +391,7 @@ struct OrderDetailView: View {
             return
         }
 
-        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/order/byUser/\(userId)") else {
+        guard let url = APIConfig.url(for: .orderByUser(userId)) else {
             errorMessage = "Invalid API URL"
             isLoading = false
             return
@@ -464,7 +466,7 @@ struct OrderDetailView: View {
 //    }
     // MARK: - Cancel Order
     private func cancelOrder(orderId: Int) {
-        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/order/status/\(orderId)") else {
+        guard let url = APIConfig.url(for: .updateOrderStatus(orderId)) else {
             errorMessage = "Invalid cancel URL"
             return
         }
