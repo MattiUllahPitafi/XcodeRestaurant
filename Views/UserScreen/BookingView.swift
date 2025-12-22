@@ -986,16 +986,40 @@ struct BookingView: View {
                                 Image(systemName: specialRequest == opt ? "largecircle.fill.circle" : "circle")
                                 Text(opt)
                             }
-                            .onTapGesture { specialRequest = opt }
+                            .onTapGesture { 
+                                specialRequest = opt
+                                // Refetch music when special request changes (if music is enabled)
+                                if showMusic {
+                                    fetchMusic()
+                                }
+                            }
                         }
 
                         Toggle("Add Music", isOn: $showMusic)
                             .onChange(of: showMusic) { if $0 { fetchMusic() } }
 
                         if showMusic {
-                            VStack {
+                            VStack(spacing: 12) {
+                                // Show indicator when special celebration overrides theme
+                                if specialRequest != "None" {
+                                    HStack {
+                                        Image(systemName: "star.fill")
+                                            .foregroundColor(.orange)
+                                        Text("🎉 \(specialRequest) Celebration - All songs available!")
+                                            .font(.caption)
+                                            .foregroundColor(.green)
+                                            .fontWeight(.semibold)
+                                    }
+                                    .padding(8)
+                                    .background(Color.orange.opacity(0.1))
+                                    .cornerRadius(8)
+                                }
+                                
                                 TextField("Filter Artist", text: $artistSearchText)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                
                                 Button("Search", action: fetchMusic)
+                                    .buttonStyle(.bordered)
 
                                 Picker("Song", selection: $selectedMusicId) {
                                     Text("Select").tag(Int?.none)
@@ -1013,6 +1037,7 @@ struct BookingView: View {
                                 .pickerStyle(.segmented)
 
                                 TextField("Dedication Note", text: $dedicationNote)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
                             }
                         }
 
@@ -1056,20 +1081,53 @@ struct BookingView: View {
     }
 
     private func fetchMusic() {
-        let df = DateFormatter()
-        df.dateFormat = "EEEE"
-
-        var comp = URLComponents(string: "http://10.211.55.7/BooknowAPI/api/Music/byday")!
-        comp.queryItems = [
-            .init(name: "day", value: df.string(from: selectedDate)),
-            .init(name: "artistName", value: artistSearchText)
-        ]
-
-        URLSession.shared.dataTask(with: comp.url!) { data,_,_ in
-            DispatchQueue.main.async {
-                musicList = (try? JSONDecoder().decode([MusicItem].self, from: data ?? Data())) ?? []
+        // If customer has a special celebration, fetch ALL songs (override theme)
+        if specialRequest != "None" {
+            // Use getAll endpoint to get all music regardless of theme
+            guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/Music/getall") else {
+                return
             }
-        }.resume()
+            
+            URLSession.shared.dataTask(with: url) { data, _, _ in
+                DispatchQueue.main.async {
+                    var allMusic = (try? JSONDecoder().decode([MusicItem].self, from: data ?? Data())) ?? []
+                    
+                    // Apply artist filter if provided
+                    if !artistSearchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        let searchText = artistSearchText.lowercased()
+                        allMusic = allMusic.filter { 
+                            $0.artist.lowercased().contains(searchText) 
+                        }
+                    }
+                    
+                    musicList = allMusic
+                }
+            }.resume()
+        } else {
+            // Normal flow: use byday endpoint for theme-based songs
+            let df = DateFormatter()
+            df.dateFormat = "EEEE"
+
+            var comp = URLComponents(string: "http://10.211.55.7/BooknowAPI/api/Music/byday")!
+            var queryItems: [URLQueryItem] = [
+                .init(name: "day", value: df.string(from: selectedDate))
+            ]
+            
+            // Only add artistName if it's not empty
+            if !artistSearchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                queryItems.append(.init(name: "artistName", value: artistSearchText))
+            }
+            
+            comp.queryItems = queryItems
+
+            guard let url = comp.url else { return }
+            
+            URLSession.shared.dataTask(with: url) { data, _, _ in
+                DispatchQueue.main.async {
+                    musicList = (try? JSONDecoder().decode([MusicItem].self, from: data ?? Data())) ?? []
+                }
+            }.resume()
+        }
     }
 
     private func confirmBooking() {

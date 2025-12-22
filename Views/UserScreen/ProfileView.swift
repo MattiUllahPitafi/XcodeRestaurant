@@ -53,8 +53,8 @@ struct ProfileView: View {
                             profileRow(label: "Role", value: user.role)
                         }
 
-                        // Coin Balances (essential info)
-                        if !user.coins.isEmpty {
+                        // Coin Balances (essential info) - Only show for customers
+                        if user.isCustomer && !user.coins.isEmpty {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("💰 Coin Balances")
                                     .font(.headline)

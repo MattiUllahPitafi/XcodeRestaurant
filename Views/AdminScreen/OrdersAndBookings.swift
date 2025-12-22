@@ -3,7 +3,7 @@ import SwiftUI
 
 // Renamed models to avoid conflicts with existing ones
 struct RestaurantBooking: Codable, Identifiable {
-    let id = UUID()
+    var id: Int { bookingId }
     let bookingId: Int
     let bookingDateTime: String
     let bookingStatus: String
@@ -54,7 +54,7 @@ struct RestaurantCustomer: Codable {
 }
 
 struct RestaurantOrder: Codable, Identifiable {
-    let id = UUID()
+    var id: Int { orderId }
     let orderId: Int
     let orderDate: String
     let totalPrice: Double
@@ -97,7 +97,7 @@ struct RestaurantOrder: Codable, Identifiable {
 }
 
 struct RestaurantOrderItem: Codable, Identifiable {
-    let id = UUID()
+    var id: Int { orderItemId }
     let orderItemId: Int
     let dishName: String
     let quantity: Int

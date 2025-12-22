@@ -1271,6 +1271,7 @@ struct SummaryRow: View {
 struct OrderSummaryView: View {
     let order: OrderSummaryResponse
     @Binding var isPresented: Bool // Control for dismissing the modal
+    let onDismiss: () -> Void // Callback to navigate back to UserHome
 
     var body: some View {
         VStack(spacing: 20) {
@@ -1313,6 +1314,7 @@ struct OrderSummaryView: View {
 
             Button("Got It!") {
                 isPresented = false // Dismiss the modal
+                onDismiss() // Navigate back to UserHome
             }
             .buttonStyle(.borderedProminent)
             .tint(.blue)
@@ -1385,6 +1387,7 @@ enum SortOption {
 struct MenuView: View {
     let restaurantId: Int
     let bookingId: Int
+    @Binding var rootPath: NavigationPath
 
     @EnvironmentObject var userVM: UserViewModel
 
@@ -1407,6 +1410,12 @@ struct MenuView: View {
     @State private var minPrice: Double?
     @State private var maxPrice: Double?
     @State private var sortBy: SortOption = .name
+    
+    // MARK: - Save/Load Menu States
+    @State private var showingSaveMenuSheet = false
+    @State private var showingSavedMenus = false
+    @State private var menuNameToSave = ""
+    @State private var restaurantName: String?
 
     // ✅ Total bill calculation
     var totalBill: Double {
@@ -1456,6 +1465,56 @@ struct MenuView: View {
     private var priceRange: ClosedRange<Double> {
         let prices = dishes.map { $0.price }
         return (prices.min() ?? 0)...(prices.max() ?? 1000)
+    }
+    
+    // Check if there are items selected
+    private var hasSelectedItems: Bool {
+        quantities.values.contains { $0 > 0 }
+    }
+    
+    // MARK: - Save/Load Menu Buttons View
+    private var saveLoadMenuButtonsView: some View {
+        HStack(spacing: 12) {
+            // Save Menu Button
+            Button {
+                if hasSelectedItems {
+                    showingSaveMenuSheet = true
+                }
+            } label: {
+                HStack {
+                    Image(systemName: "bookmark.fill")
+                    Text("Save Menu")
+                }
+                .font(.subheadline)
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(hasSelectedItems ? Color.blue : Color.gray)
+                .cornerRadius(8)
+            }
+            .disabled(!hasSelectedItems)
+            
+            // Load Saved Menus Button
+            Button {
+                showingSavedMenus = true
+            } label: {
+                HStack {
+                    Image(systemName: "bookmark")
+                    Text("Load Saved")
+                }
+                .font(.subheadline)
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Color.green)
+                .cornerRadius(8)
+            }
+            
+            Spacer()
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(Color(.systemGray6))
     }
 
     // MARK: - Filter Controls View
@@ -1535,6 +1594,9 @@ struct MenuView: View {
             } else {
                 // Show filter controls
                 filterControlsView
+                
+                // Save/Load Menu Buttons
+                saveLoadMenuButtonsView
 
                 List {
                     if filteredDishes.isEmpty {
@@ -1704,11 +1766,36 @@ struct MenuView: View {
         .navigationTitle("Menu")
         .onAppear {
             fetchMenu()
+            fetchRestaurantName()
         }
         // 👇 MODAL PRESENTATION FOR ORDER SUMMARY
         .sheet(isPresented: $showingOrderSummary) {
             if let order = successfulOrder {
-                OrderSummaryView(order: order, isPresented: $showingOrderSummary)
+                OrderSummaryView(
+                    order: order,
+                    isPresented: $showingOrderSummary,
+                    onDismiss: {
+                        // Navigate back to UserHome after order is submitted
+                        DispatchQueue.main.async {
+                            rootPath = NavigationPath()
+                            rootPath.append(AppRoute.userHome)
+                        }
+                    }
+                )
+            }
+        }
+        // 👇 MODAL FOR SAVE MENU
+        .sheet(isPresented: $showingSaveMenuSheet) {
+            SaveMenuNameView(
+                menuName: $menuNameToSave,
+                isPresented: $showingSaveMenuSheet,
+                onSave: saveCurrentMenu
+            )
+        }
+        // 👇 MODAL FOR SAVED MENUS
+        .sheet(isPresented: $showingSavedMenus) {
+            SavedMenusView(restaurantId: restaurantId) { savedMenu in
+                loadCustomMenu(savedMenu)
             }
         }
     }
@@ -1872,5 +1959,82 @@ struct MenuView: View {
                 }
             }
         }.resume()
+    }
+    
+    // MARK: - Save/Load Menu Functions
+    
+    private func fetchRestaurantName() {
+        // Try to fetch restaurant name from API
+        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/restaurants/\(restaurantId)") else {
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let data = data,
+               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let name = json["name"] as? String {
+                DispatchQueue.main.async {
+                    self.restaurantName = name
+                }
+            }
+        }.resume()
+    }
+    
+    private func saveCurrentMenu() {
+        guard !menuNameToSave.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return
+        }
+        
+        // Create selected dishes from current state
+        var selectedDishes: [SelectedDish] = []
+        
+        for (dishId, quantity) in quantities where quantity > 0 {
+            if let dish = dishes.first(where: { $0.dishId == dishId }) {
+                let skippedSets = skippedIngredients[dishId] ?? Array(repeating: [], count: quantity)
+                selectedDishes.append(SelectedDish.from(
+                    dish: dish,
+                    quantity: quantity,
+                    skippedIngredients: skippedSets
+                ))
+            }
+        }
+        
+        guard !selectedDishes.isEmpty else {
+            return
+        }
+        
+        // Create custom menu
+        let customMenu = CustomMenu(
+            restaurantId: restaurantId,
+            restaurantName: restaurantName,
+            name: menuNameToSave.trimmingCharacters(in: .whitespacesAndNewlines),
+            selectedDishes: selectedDishes
+        )
+        
+        // Save to local storage
+        LocalMenuStorage.shared.saveCustomMenu(customMenu)
+        
+        // Clear the menu name field
+        menuNameToSave = ""
+        
+        print("✅ Menu saved: \(customMenu.name)")
+    }
+    
+    private func loadCustomMenu(_ menu: CustomMenu) {
+        // Clear current selections
+        quantities = [:]
+        skippedIngredients = [:]
+        
+        // Load each dish from the saved menu
+        for selectedDish in menu.selectedDishes {
+            // Check if dish still exists in current menu
+            if dishes.contains(where: { $0.dishId == selectedDish.dishId }) {
+                quantities[selectedDish.dishId] = selectedDish.quantity
+                skippedIngredients[selectedDish.dishId] = selectedDish.skippedIngredients
+            } else {
+                // Dish no longer exists, skip it
+                print("⚠️ Dish \(selectedDish.dishName) no longer available in menu")
+            }
+        }
     }
 }

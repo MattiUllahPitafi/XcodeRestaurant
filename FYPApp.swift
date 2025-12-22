@@ -50,7 +50,7 @@ struct FYPApp: App {
 
 
                         case .menu(let restaurantId, let bookingId):
-                            MenuView(restaurantId: restaurantId, bookingId: bookingId)
+                            MenuView(restaurantId: restaurantId, bookingId: bookingId, rootPath: $path)
                                 .environmentObject(userVM)
 
                         case .profile:

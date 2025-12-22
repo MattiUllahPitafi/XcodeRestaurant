@@ -101,10 +101,17 @@ struct MenuBeforeBooking: View {
     @State private var isLoading = true
     @State private var errorMessage: String?
     @State private var quantities: [Int: Int] = [:] // dishId : quantity
+    @State private var skippedIngredients: [Int: [[Int]]] = [:]
     @State private var searchText = ""
     @State private var minPrice: Double?
     @State private var maxPrice: Double?
     @State private var sortBy: SortOption = .name
+    
+    // MARK: - Save/Load Menu States
+    @State private var showingSaveMenuSheet = false
+    @State private var showingSavedMenus = false
+    @State private var menuNameToSave = ""
+    @State private var restaurantName: String?
 
     // Filtered dishes based on all criteria
     private var filteredDishes: [Dish] {
@@ -148,6 +155,56 @@ struct MenuBeforeBooking: View {
         let prices = dishes.map { $0.price }
         return (prices.min() ?? 0)...(prices.max() ?? 1000)
     }
+    
+    // Check if there are items selected
+    private var hasSelectedItems: Bool {
+        quantities.values.contains { $0 > 0 }
+    }
+    
+    // MARK: - Save/Load Menu Buttons View
+    private var saveLoadMenuButtonsView: some View {
+        HStack(spacing: 12) {
+            // Save Menu Button
+            Button {
+                if hasSelectedItems {
+                    showingSaveMenuSheet = true
+                }
+            } label: {
+                HStack {
+                    Image(systemName: "bookmark.fill")
+                    Text("Save Menu")
+                }
+                .font(.subheadline)
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(hasSelectedItems ? Color.blue : Color.gray)
+                .cornerRadius(8)
+            }
+            .disabled(!hasSelectedItems)
+            
+            // Load Saved Menus Button
+            Button {
+                showingSavedMenus = true
+            } label: {
+                HStack {
+                    Image(systemName: "bookmark")
+                    Text("Load Saved")
+                }
+                .font(.subheadline)
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Color.green)
+                .cornerRadius(8)
+            }
+            
+            Spacer()
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(Color(.systemGray6))
+    }
 
     var body: some View {
         VStack {
@@ -160,6 +217,9 @@ struct MenuBeforeBooking: View {
             } else {
                 // Filter controls
                 filterControlsView
+                
+                // Save/Load menu buttons
+                saveLoadMenuButtonsView
 
                 // Main list
                 List {
@@ -181,6 +241,21 @@ struct MenuBeforeBooking: View {
         .navigationTitle("Menu")
         .onAppear {
             fetchMenu()
+            fetchRestaurantName()
+        }
+        // 👇 MODAL FOR SAVE MENU
+        .sheet(isPresented: $showingSaveMenuSheet) {
+            SaveMenuNameView(
+                menuName: $menuNameToSave,
+                isPresented: $showingSaveMenuSheet,
+                onSave: saveCurrentMenu
+            )
+        }
+        // 👇 MODAL FOR SAVED MENUS
+        .sheet(isPresented: $showingSavedMenus) {
+            SavedMenusView(restaurantId: restaurantId) { savedMenu in
+                loadCustomMenu(savedMenu)
+            }
         }
     }
 
@@ -276,6 +351,52 @@ struct MenuBeforeBooking: View {
             }
 
             Spacer()
+            
+            // ✅ Quantity controls
+            HStack(spacing: 12) {
+                // Minus button
+                Button(action: {
+                    let current = quantities[dish.dishId] ?? 0
+                    if current > 0 {
+                        let newQuantity = current - 1
+                        quantities[dish.dishId] = newQuantity
+                        
+                        // Keep skippedIngredients in sync
+                        var sets = skippedIngredients[dish.dishId] ?? []
+                        if sets.count > newQuantity {
+                            sets.removeLast(sets.count - newQuantity)
+                        }
+                        skippedIngredients[dish.dishId] = sets
+                    }
+                }) {
+                    Image(systemName: "minus.circle.fill")
+                        .foregroundColor(.red)
+                        .font(.title2)
+                }
+                .buttonStyle(BorderlessButtonStyle())
+                
+                Text("\(quantities[dish.dishId] ?? 0)")
+                    .frame(width: 30)
+                
+                // Plus button
+                Button(action: {
+                    let current = quantities[dish.dishId] ?? 0
+                    let newQuantity = current + 1
+                    quantities[dish.dishId] = newQuantity
+                    
+                    // Keep skippedIngredients in sync
+                    var sets = skippedIngredients[dish.dishId] ?? []
+                    while sets.count < newQuantity {
+                        sets.append([]) // add empty skipped set
+                    }
+                    skippedIngredients[dish.dishId] = sets
+                }) {
+                    Image(systemName: "plus.circle.fill")
+                        .foregroundColor(.green)
+                        .font(.title2)
+                }
+                .buttonStyle(BorderlessButtonStyle())
+            }
         }
         .padding(.vertical, 6)
     }
@@ -308,6 +429,82 @@ struct MenuBeforeBooking: View {
                 }
             }
         }.resume()
+    }
+    
+    // MARK: - Save/Load Menu Functions
+    private func fetchRestaurantName() {
+        // Try to fetch restaurant name from API
+        guard let url = URL(string: "http://10.211.55.7/BooknowAPI/api/restaurants/\(restaurantId)") else {
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let data = data,
+               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let name = json["name"] as? String {
+                DispatchQueue.main.async {
+                    self.restaurantName = name
+                }
+            }
+        }.resume()
+    }
+    
+    private func saveCurrentMenu() {
+        guard !menuNameToSave.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return
+        }
+        
+        // Create selected dishes from current state
+        var selectedDishes: [SelectedDish] = []
+        
+        for (dishId, quantity) in quantities where quantity > 0 {
+            if let dish = dishes.first(where: { $0.dishId == dishId }) {
+                let skippedSets = skippedIngredients[dishId] ?? Array(repeating: [], count: quantity)
+                selectedDishes.append(SelectedDish.from(
+                    dish: dish,
+                    quantity: quantity,
+                    skippedIngredients: skippedSets
+                ))
+            }
+        }
+        
+        guard !selectedDishes.isEmpty else {
+            return
+        }
+        
+        // Create custom menu
+        let customMenu = CustomMenu(
+            restaurantId: restaurantId,
+            restaurantName: restaurantName,
+            name: menuNameToSave.trimmingCharacters(in: .whitespacesAndNewlines),
+            selectedDishes: selectedDishes
+        )
+        
+        // Save to local storage
+        LocalMenuStorage.shared.saveCustomMenu(customMenu)
+        
+        // Clear the menu name field
+        menuNameToSave = ""
+        
+        print("✅ Menu saved: \(customMenu.name)")
+    }
+    
+    private func loadCustomMenu(_ menu: CustomMenu) {
+        // Clear current selections
+        quantities = [:]
+        skippedIngredients = [:]
+        
+        // Load each dish from the saved menu
+        for selectedDish in menu.selectedDishes {
+            // Check if dish still exists in current menu
+            if dishes.contains(where: { $0.dishId == selectedDish.dishId }) {
+                quantities[selectedDish.dishId] = selectedDish.quantity
+                skippedIngredients[selectedDish.dishId] = selectedDish.skippedIngredients
+            } else {
+                // Dish no longer exists, skip it
+                print("⚠️ Dish \(selectedDish.dishName) no longer available in menu")
+            }
+        }
     }
 }
 
